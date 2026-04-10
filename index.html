@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Школьное расписание — сайт для учеников</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0a10;
+  color: white;
+  overflow: hidden;
+}
+
+/* Фон */
+.bg {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(140, 0, 255, 0.35), transparent 40%),
+    radial-gradient(circle at 60% 30%, rgba(0, 255, 200, 0.15), transparent 50%);
+  filter: blur(120px);
+  z-index: 0;
+}
+
+/* Контейнер */
+.container {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+}
+
+/* Вкладки */
+.tabs {
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tabBtn {
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #1b1b22;
+  color: white;
+  cursor: pointer;
+}
+
+.tabBtn.active {
+  background: linear-gradient(45deg, #7a2cff, #b84dff);
+}
+
+/* Карточка */
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 15px;
+  border-radius: 15px;
+  margin-top: 10px;
+}
+
+/* Поля ввода */
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 8px;
+  background: #111;
+  color: white;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 10px;
+  background: #7a2cff;
+  color: white;
+  cursor: pointer;
+}
+
+/* Анимация для персонажей */
+.anime {
+  position: fixed;
+  width: 50px;
+  height: 80px;
+  z-index: 2;
+  animation: jump 1.2s infinite ease-in-out;
+}
+
+/* Персонажи */
+.c1 {
+  background: linear-gradient(#ffb6e6, #ff4fd8);
+  left: 10%;
+  top: 75%;
+}
+
+.c2 {
+  background: linear-gradient(#6bd6ff, #2b7cff);
+  left: 50%;
+  top: 75%;
+}
+
+.c3 {
+  background: linear-gradient(#a6ff6b, #2cff9a);
+  left: 80%;
+  top: 70%;
+}
+
+/* Прыжок персонажей */
+@keyframes jump {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Глаза */
+.anime::before,
+.anime::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  top: 15px;
+}
+
+.anime::before {
+  left: 12px;
+}
+
+.anime::after {
+  right: 12px;
+}
+
+/* Рот */
+.anime {
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.25);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+
+<!-- 🎮 Аниме персонажи -->
+<div class="anime c1"></div>
+<div class="anime c2"></div>
+<div class="anime c3"></div>
+
+<div class="container">
+
+<h2>📅 Школьное расписание</h2>
+
+<div class="tabs">
+  <button class="tabBtn active" onclick="tab('mon',this)">Пн</button>
+  <button class="tabBtn" onclick="tab('tue',this)">Вт</button>
+  <button class="tabBtn" onclick="tab('wed',this)">Ср</button>
+  <button class="tabBtn" onclick="tab('thu',this)">Чт</button>
+  <button class="tabBtn" onclick="tab('fri',this)">Пт</button>
+  <button class="tabBtn" onclick="tab('sat',this)">Сб</button>
+  <button class="tabBtn" onclick="tab('sun',this)">Вс</button>
+</div>
+
+<div class="card">
+  <h3 id="title">Понедельник</h3>
+
+  <div id="lessons"></div>
+
+  <button onclick="save()">💾 Сохранить</button>
+</div>
+
+</div>
+
+<script>
+
+// 🧠 Сохранение данных и обработка вкладок
+"use strict";
+
+let data = JSON.parse(localStorage.getItem("weekData") || "{}");
+
+let day = "mon";
+
+function init(d){
+  if(!data[d]){
+    data[d] = ["","","","","","",""];
+  }
+}
+
+function tab(d,btn){
+  day = d;
+
+  document.querySelectorAll(".tabBtn")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  document.getElementById("title").innerText = d;
+
+  render();
+}
+
+function render(){
+  init(day);
+
+  let box = document.getElementById("lessons");
+  box.innerHTML = "";
+
+  for(let i=0;i<7;i++){
+
+    let input = document.createElement("input");
+    input.placeholder = "Урок " + (i+1);
+    input.value = data[day][i];
+
+    input.oninput = e=>{
+      data[day][i] = e.target.value;
+    };
+
+    box.appendChild(input);
+  }
+}
+
+function save(){
+  localStorage.setItem("weekData", JSON.stringify(data));
+  alert("Сохранено!");
+}
+
+render();
+
+// 🎮 Двигаем персонажей
+let chars = [
+  {id:"c1",x:10,y:300,sx:2,sy:2},
+  {id:"c2",x:200,y:300,sx:-2,sy:2},
+  {id:"c3",x:350,y:300,sx:2,sy:-2}
+];
+
+function move(){
+  for(let c of chars){
+    c.x += c.sx;
+    c.y += c.sy;
+
+    if(c.x < 0 || c.x > window.innerWidth-50) c.sx *= -1;
+    if(c.y < 0 || c.y > window.innerHeight-80) c.sy *= -1;
+
+    let el = document.getElementById(c.id);
+    el.style.left = c.x + "px";
+    el.style.top = c.y + "px";
+  }
+  requestAnimationFrame(move);
+}
+
+move();
+
+</script>
+
+</body>
+</html>
